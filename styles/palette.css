@@ -1,0 +1,8 @@
+:root {
+  --flourish-highlight: #d65a4a;
+  --annotate-highlight: #d65a4a;
+  --annotate-highlight-light: #ef9185;
+  --color-orange-main: var(--annotate-highlight);
+  --color-orange-light: var(--annotate-highlight-light);
+  --phrond-selected: rgba(214, 90, 74, 0.16);
+}

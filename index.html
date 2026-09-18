@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Photo Annotator - Annotate | Phrond</title>
+    <meta name="description" content="Add labels, arrows, and hand-drawn circles to a photo, then save the finished image.">
+    <link rel="stylesheet" href="/tools/flourish/styles/palette.css">
+    <link rel="stylesheet" href="/tools/flourish/styles/site.css?v=semantic-colors-3">
+    <link rel="stylesheet" href="/styles/fern-shared-dialogs.css">
+    <link rel="stylesheet" href="/styles/fern-shared-color-controls.css?v=3">
+    <link rel="stylesheet" href="/styles/fern-shared-chrome.css">
+    <link rel="stylesheet" href="styles/palette.css">
+    <link rel="stylesheet" href="styles/site.css">
+    <script src="/scripts/navigation.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <div class="brand-product-lockup">
+          <a class="brand-title" href="/">Phrond</a>
+          <span class="brand-product-separator" aria-hidden="true">|</span>
+          <a class="brand-product-name" href="./">Annotate</a>
+        </div>
+        <button class="mobile-menu-toggle" id="phrond-mobile-toggle" aria-label="Toggle Navigation Menu" type="button">
+          <span class="hamburger-bar"></span><span class="hamburger-bar"></span><span class="hamburger-bar"></span>
+        </button>
+        {{site_navigation}}
+      </div>
+    </header>
+
+    <div class="page-shell">
+      <main class="controls-layout">
+        <aside class="control-nav" aria-label="Annotation controls">
+          <section class="control-nav-section">
+            <h2>Colors</h2>
+            <div class="color-controls-grid annotation-color-grid">
+              <div class="color-field" data-color-trigger data-color-key="arrowFill" data-color-label="Arrow fill"><label for="arrow-fill">Arrow fill</label><input id="arrow-fill" type="color" value="#ef342d" title="Edit arrow fill color"></div>
+              <div class="color-field" data-color-trigger data-color-key="arrowBorder" data-color-label="Arrow border"><label for="arrow-border">Arrow border</label><input id="arrow-border" type="color" value="#ffffff" title="Edit arrow border color"></div>
+              <div class="color-field" data-color-trigger data-color-key="textFill" data-color-label="Text fill"><label for="text-fill">Text fill</label><input id="text-fill" type="color" value="#000000" title="Edit text fill color"></div>
+              <div class="color-field" data-color-trigger data-color-key="textBorder" data-color-label="Text border"><label for="text-border">Text border</label><input id="text-border" type="color" value="#ffffff" title="Edit text border color"></div>
+            </div>
+            <article class="control-card">
+              <div class="slider-head"><label for="stroke-width"><h2>Stroke width</h2></label><output id="stroke-width-output" for="stroke-width">3</output></div>
+              <label class="slider-wrap" for="stroke-width"><span>0</span><input id="stroke-width" type="range" min="0" max="12" step="1" value="3"><span>12</span></label>
+            </article>
+          </section>
+
+          <section class="control-nav-section">
+            <h2>Tools</h2>
+            <div class="aesthetic-nav-grid tool-button-grid" aria-label="Annotation tools">
+              <button class="button button-secondary is-selected" type="button" data-tool="select" aria-pressed="true">Select</button>
+              <button class="button button-secondary" type="button" data-tool="text" aria-pressed="false">Text</button>
+              <button class="button button-secondary" type="button" data-tool="arrow" aria-pressed="false">Arrow</button>
+              <button class="button button-secondary" type="button" data-tool="circle" aria-pressed="false">Circle</button>
+            </div>
+            <div class="tool-options is-hidden" data-controls="text">
+              <textarea class="caption-input" id="annotation-text" rows="3" spellcheck="true" aria-label="Annotation text"></textarea>
+              <label class="surface-preset-label" for="text-font">Font<select id="text-font"><option value="Impact">Impact</option><option value="Arial">Arial</option><option value="Arial Black">Arial Black</option><option value="Georgia">Georgia</option><option value="Comic Sans MS">Handwritten</option></select></label>
+              <label class="surface-preset-label" for="text-size">Size<input id="text-size" type="number" min="2" max="18" step="1" value="8"></label>
+              <label class="surface-preset-label" for="text-align">Align<select id="text-align"><option value="left">Left</option><option value="center" selected>Center</option><option value="right">Right</option></select></label>
+              <div class="control-options-row">
+                <label class="plain-check-label"><input id="text-bold" type="checkbox" checked><span>Bold</span></label>
+                <label class="plain-check-label"><input id="text-italic" type="checkbox"><span>Italic</span></label>
+                <label class="plain-check-label"><input id="text-outline" type="checkbox" checked><span>Outline</span></label>
+              </div>
+            </div>
+            <div class="tool-options is-hidden" data-controls="arrow">
+              <div class="arrow-geometry-controls">
+                <label class="tool-slider" for="arrow-point-length"><span>Point length</span><input id="arrow-point-length" type="range" min="4" max="24" value="11"><output for="arrow-point-length">11</output></label>
+                <label class="tool-slider" for="arrow-line-length"><span>Line length</span><input id="arrow-line-length" type="range" min="8" max="50" value="24"><output for="arrow-line-length">24</output></label>
+                <label class="tool-slider" for="arrow-head-width"><span>Head width</span><input id="arrow-head-width" type="range" min="6" max="34" value="18"><output for="arrow-head-width">18</output></label>
+                <label class="tool-slider" for="arrow-wing-angle"><span>Wing angle</span><input id="arrow-wing-angle" type="range" min="30" max="90" value="90"><output for="arrow-wing-angle">90°</output></label>
+                <label class="tool-slider" for="arrow-line-weight"><span>Shaft width</span><input id="arrow-line-weight" type="range" min="2" max="14" value="5"><output for="arrow-line-weight">5</output></label>
+              </div>
+            </div>
+            <div class="tool-options is-hidden" data-controls="circle">
+              <h2>Circle style</h2>
+              <div class="segmented-control" role="radiogroup" aria-label="Circle style">
+                <button class="segment-btn is-active" type="button" data-circle-style="natural" aria-pressed="true">Hand-drawn</button>
+                <button class="segment-btn" type="button" data-circle-style="clean" aria-pressed="false">Oval</button>
+              </div>
+            </div>
+          </section>
+        </aside>
+
+        <section class="controls-panel-container">
+          <div class="studio-view controls-panel workspace-panel">
+            <div class="panel-header border-preview-header">
+              <h2>Photo Annotator</h2>
+            </div>
+            <div class="motif-preview-frame border-canvas-container aspect-landscape annotate-canvas-frame" data-drop-zone>
+              <div class="empty-state">
+                <div class="empty-art" aria-hidden="true"><svg viewBox="0 0 260 190"><rect x="20" y="20" width="220" height="150" rx="3"/><path d="M35 142l55-53 38 32 30-24 67 58"/><circle cx="183" cy="65" r="18"/><path class="empty-arrow" d="M228 22l-45 41m2-24-2 24 24-3"/><path class="empty-circle" d="M49 92c-3-31 27-53 65-51 39 2 61 24 55 52-7 31-42 43-77 36-27-5-42-18-43-37z"/></svg></div>
+                <h2>Drop a photo here</h2>
+                <label class="button button-primary" for="photo-input">Import Image<input id="photo-input" type="file" accept="image/*" hidden></label>
+              </div>
+              <div class="canvas-wrap" hidden><canvas id="annotation-canvas" aria-label="Photo annotation canvas"></canvas></div>
+            </div>
+            <div class="workspace-actions" aria-label="Photo actions">
+              <button class="button button-secondary" type="button" data-action="new">New</button>
+              <button class="button button-secondary" type="button" data-action="undo" disabled>Undo</button>
+              <button class="button button-secondary" type="button" data-action="redo" disabled>Redo</button>
+              <button class="button button-secondary" type="button" data-action="delete" disabled>Delete</button>
+              <button class="button button-secondary" type="button" data-action="clear">Clear</button>
+              <button class="button button-primary" type="button" data-action="export" disabled>Export PNG</button>
+            </div>
+            <div class="canvas-footer"><span class="canvas-meta">No photo loaded</span><span class="status-msg" role="status" aria-live="polite"></span></div>
+          </div>
+        </section>
+      </main>
+      {{site_footer}}
+    </div>
+
+    <dialog class="fern-dialog flourish-color-dialog" id="color-dialog" aria-labelledby="color-dialog-title">
+      <div class="fern-dialog-header flourish-color-dialog-header">
+        <div><p class="field-label">Drawing color</p><h2 id="color-dialog-title">Edit stroke color</h2></div>
+        <button class="button button-ghost flourish-color-dialog-close fern-dialog-close" type="button" data-color-close aria-label="Close color picker" title="Close">&#10005;</button>
+      </div>
+      <div class="flourish-color-dialog-controls">
+        <div class="fern-color-picker-group">
+          <span class="fern-color-picker-label">Color picker</span>
+          <div class="fern-inline-picker">
+            <div class="fern-color-picker-surface" data-color-surface role="slider" aria-label="Color saturation and brightness" tabindex="0"><span class="fern-color-picker-thumb" data-color-thumb></span></div>
+            <label class="fern-color-picker-hue-label">Hue<input class="fern-color-picker-hue" data-color-hue type="range" min="0" max="360" value="3" aria-label="Color hue"></label>
+          </div>
+        </div>
+        <label class="flourish-color-hex-label">Hex<input class="flourish-color-hex" type="text" data-color-hex value="#EF342D" maxlength="7" spellcheck="false"></label>
+      </div>
+    </dialog>
+    <script src="static/app.js"></script>
+  </body>
+</html>
