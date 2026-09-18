@@ -41,7 +41,7 @@
               <div class="color-field" data-color-trigger data-color-key="textBorder" data-color-label="Text border"><label for="text-border">Text border</label><input id="text-border" type="color" value="#ffffff" title="Edit text border color"></div>
             </div>
             <article class="control-card">
-              <div class="slider-head"><label for="stroke-width"><h2>Stroke width</h2></label><output id="stroke-width-output" for="stroke-width">3</output></div>
+              <div class="slider-head"><label for="stroke-width"><h2>Stroke width</h2></label><input id="stroke-width-output" type="number" min="0" max="12" step="1" value="3" aria-label="Stroke width value"></div>
               <label class="slider-wrap" for="stroke-width"><span>0</span><input id="stroke-width" type="range" min="0" max="12" step="1" value="3"><span>12</span></label>
             </article>
           </section>
@@ -67,11 +67,11 @@
             </div>
             <div class="tool-options is-hidden" data-controls="arrow">
               <div class="arrow-geometry-controls">
-                <label class="tool-slider" for="arrow-point-length"><span>Point length</span><input id="arrow-point-length" type="range" min="4" max="24" value="11"><output for="arrow-point-length">11</output></label>
-                <label class="tool-slider" for="arrow-line-length"><span>Line length</span><input id="arrow-line-length" type="range" min="8" max="50" value="24"><output for="arrow-line-length">24</output></label>
-                <label class="tool-slider" for="arrow-head-width"><span>Head width</span><input id="arrow-head-width" type="range" min="6" max="34" value="18"><output for="arrow-head-width">18</output></label>
-                <label class="tool-slider" for="arrow-wing-angle"><span>Wing angle</span><input id="arrow-wing-angle" type="range" min="30" max="90" value="90"><output for="arrow-wing-angle">90°</output></label>
-                <label class="tool-slider" for="arrow-line-weight"><span>Shaft width</span><input id="arrow-line-weight" type="range" min="2" max="14" value="5"><output for="arrow-line-weight">5</output></label>
+                <div class="tool-slider"><label for="arrow-point-length">Point length</label><input id="arrow-point-length" type="range" min="4" max="24" value="11"><input type="number" min="4" max="24" step="1" value="11" aria-label="Point length value"></div>
+                <div class="tool-slider"><label for="arrow-line-length">Line length</label><input id="arrow-line-length" type="range" min="8" max="50" value="24"><input type="number" min="8" max="50" step="1" value="24" aria-label="Line length value"></div>
+                <div class="tool-slider"><label for="arrow-head-width">Head width</label><input id="arrow-head-width" type="range" min="6" max="34" value="18"><input type="number" min="6" max="34" step="1" value="18" aria-label="Head width value"></div>
+                <div class="tool-slider"><label for="arrow-wing-angle">Wing angle (°)</label><input id="arrow-wing-angle" type="range" min="30" max="90" value="90"><input type="number" min="30" max="90" step="1" value="90" aria-label="Wing angle in degrees"></div>
+                <div class="tool-slider"><label for="arrow-line-weight">Shaft width</label><input id="arrow-line-weight" type="range" min="2" max="14" value="5"><input type="number" min="2" max="14" step="1" value="5" aria-label="Shaft width value"></div>
               </div>
             </div>
             <div class="tool-options is-hidden" data-controls="circle">

@@ -12,7 +12,10 @@
 .arrow-geometry-controls { display: grid; gap: 0.45rem; }
 .tool-slider { display: grid; grid-template-columns: 5.2rem minmax(0, 1fr) 2.8rem; align-items: center; gap: 0.4rem; color: var(--phrond-text-muted); font-size: 0.7rem; }
 .tool-slider input { min-width: 0; width: 100%; max-width: 100%; }
-.tool-slider output { box-sizing: border-box; width: 2.8rem; min-width: 0; padding-inline: 0.3rem; color: var(--phrond-text-primary); text-align: right; }
+.tool-slider input[type="number"], .control-nav .slider-head input[type="number"] { box-sizing: border-box; min-width: 0; padding: 0.2rem 0.3rem; border: 1px solid var(--phrond-tile-border); border-radius: 4px; color: var(--phrond-text-primary); background: var(--phrond-surface-panel); font: inherit; font-weight: 700; text-align: center; appearance: textfield; }
+.tool-slider input[type="number"] { width: 2.8rem; }
+.control-nav .slider-head input[type="number"] { width: 3.2rem; font-size: 0.85rem; }
+.tool-slider input[type="number"]::-webkit-inner-spin-button, .tool-slider input[type="number"]::-webkit-outer-spin-button, .control-nav .slider-head input[type="number"]::-webkit-inner-spin-button, .control-nav .slider-head input[type="number"]::-webkit-outer-spin-button { appearance: none; margin: 0; }
 
 :is(.control-nav, .workspace-panel, .flourish-color-dialog) :is(button, input, textarea, select, [tabindex]):focus-visible {
   outline: 2px solid var(--annotate-highlight);

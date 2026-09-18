@@ -231,7 +231,7 @@
     Object.entries(arrowControls).forEach(([key, input]) => {
       const stateKey = `arrow${key[0].toUpperCase()}${key.slice(1)}`;
       input.value = state[stateKey];
-      input.nextElementSibling.value = `${state[stateKey]}${key === "wingAngle" ? "°" : ""}`;
+      input.nextElementSibling.value = state[stateKey];
     });
     setTool(state.tool);
     selectStyle("[data-circle-style]", state.circleStyle, "circleStyle");
@@ -406,6 +406,21 @@
     return { x: left - 10, y: item.y - lineHeight, w: width + 20, h: lineHeight * lines.length + 12 };
   }
 
+  function setAnnotationShadow() {
+    const scale = Math.min(canvas.width, canvas.height) / 1000;
+    ctx.shadowColor = "rgba(0, 0, 0, 0.28)";
+    ctx.shadowBlur = Math.max(1, scale * 5);
+    ctx.shadowOffsetX = scale * 2;
+    ctx.shadowOffsetY = scale * 3;
+  }
+
+  function clearAnnotationShadow() {
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+  }
+
   function drawText(item) {
     const px = scaledSize(item.size);
     const lines = textLines(item);
@@ -419,13 +434,16 @@
     ctx.lineJoin = "round";
     lines.forEach((line, index) => {
       const y = index * lineHeight;
+      setAnnotationShadow();
       if (item.outline && (item.borderWidth ?? state.strokeWidth) > 0) {
         ctx.strokeStyle = item.textBorder || item.strokeColor || item.color || state.textBorder;
         ctx.lineWidth = Math.max(1, scaledSize(item.borderWidth ?? state.strokeWidth) * .2);
         ctx.strokeText(line, 0, y);
+        clearAnnotationShadow();
       }
       ctx.fillStyle = item.textFill || item.fillColor || item.color || state.textFill;
       ctx.fillText(line, 0, y);
+      clearAnnotationShadow();
     });
     ctx.restore();
   }
@@ -448,7 +466,9 @@
     ctx.beginPath();
     points.forEach(([x, y], index) => index ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
     ctx.closePath();
+    setAnnotationShadow();
     ctx.fill();
+    clearAnnotationShadow();
     if (borderWidth > 0) ctx.stroke();
     ctx.restore();
   }
@@ -523,6 +543,7 @@
     ctx.lineWidth = Math.max(1, scaledSize(strokeWidth) * .2);
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
+    setAnnotationShadow();
     if (item.style === "natural") {
       if (strokeWidth > 0) drawMarkerLoop(item, strokeWidth);
     } else {
@@ -530,6 +551,7 @@
       ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
       if (strokeWidth > 0) ctx.stroke();
     }
+    clearAnnotationShadow();
     ctx.restore();
   }
 
@@ -829,12 +851,16 @@
     const arrowHandle = arrowHandleAt(current, point);
     const targetIndex = rotateHandle || circleHandle || arrowResizeHandle || arrowHandle ? state.selected : hitTest(point);
     const target = targetIndex === null ? null : state.annotations[targetIndex];
-    if ((rotateHandle || event.shiftKey) && (target?.type === "circle" || target?.type === "arrow" || target?.type === "text")) {
+    if ((rotateHandle || arrowHandle || event.shiftKey) && (target?.type === "circle" || target?.type === "arrow" || target?.type === "text")) {
       selectAnnotation(targetIndex);
       const cx = target.type === "text" ? target.x : (target.x1 + target.x2) / 2;
       const cy = target.type === "text" ? target.y : (target.y1 + target.y2) / 2;
       const distance = Math.hypot(point.x - cx, point.y - cy);
-      pointer = { id: event.pointerId, kind: "edit", mode: "rotate-item", start: point, last: point, dragAngle: Math.atan2(point.y - cy, point.x - cx), lever: Math.max(screenSize(64), distance), turn: 0, rotation: target.rotation || 0, endpoints: { x1: target.x1, y1: target.y1, x2: target.x2, y2: target.y2 }, before: cloneAnnotations(), moved: false };
+      pointer = { id: event.pointerId, kind: "edit", mode: "rotate-item", start: point, last: point,
+        lastAngle: distance >= screenSize(20) ? Math.atan2(point.y - cy, point.x - cx) : null,
+        deadZone: screenSize(20), turn: 0, rotation: target.rotation || 0,
+        center: { x: cx, y: cy }, endpoints: { x1: target.x1, y1: target.y1, x2: target.x2, y2: target.y2 },
+        before: cloneAnnotations(), moved: false };
       canvas.style.cursor = "grabbing";
       render(); saveState();
       return;
@@ -855,10 +881,9 @@
         before: cloneAnnotations(), moved: false };
       return;
     }
-    const handle = arrowHandle;
-    const index = handle ? state.selected : hitTest(point);
+    const index = hitTest(point);
     selectAnnotation(index);
-    pointer = index === null ? null : { id: event.pointerId, kind: "edit", last: point, before: cloneAnnotations(), moved: false, mode: handle || "move" };
+    pointer = index === null ? null : { id: event.pointerId, kind: "edit", last: point, before: cloneAnnotations(), moved: false, mode: "move" };
     render(); saveState();
   });
 
@@ -875,6 +900,9 @@
       }
       if (pointer.outside) {
         pointer.last = point;
+        const distance = Math.hypot(point.x - pointer.center.x, point.y - pointer.center.y);
+        pointer.lastAngle = distance >= pointer.deadZone
+          ? Math.atan2(point.y - pointer.center.y, point.x - pointer.center.x) : null;
         pointer.outside = false;
         return;
       }
@@ -887,7 +915,7 @@
       const arrowHandle = arrowHandleAt(current, point);
       const index = rotateHandle || handle || arrowHandle ? state.selected : hitTest(point);
       const target = state.annotations[index];
-      canvas.style.cursor = (rotateHandle || event.shiftKey) && (target?.type === "circle" || target?.type === "arrow" || target?.type === "text") ? "grab" : handle ? cursors[handle] : index !== null ? "move" : "";
+      canvas.style.cursor = (rotateHandle || arrowHandle || event.shiftKey) && (target?.type === "circle" || target?.type === "arrow" || target?.type === "text") ? "grab" : handle ? cursors[handle] : index !== null ? "move" : "";
       return;
     }
     if (pointer.kind === "edit" && state.selected !== null) {
@@ -896,17 +924,32 @@
       const dy = point.y - (pointer.last?.y ?? pointer.start.y);
       if (pointer.mode !== "rotate-item" && Math.abs(dx) + Math.abs(dy) > .2) pointer.moved = true;
       if (pointer.mode === "rotate-item") {
-        const delta = (-Math.sin(pointer.dragAngle) * dx + Math.cos(pointer.dragAngle) * dy) / pointer.lever;
-        pointer.turn += delta;
-        pointer.dragAngle += delta;
-        if (Math.abs(delta) > .0001) pointer.moved = true;
+        const cx = pointer.center.x;
+        const cy = pointer.center.y;
+        const radius = Math.hypot(point.x - cx, point.y - cy);
+        const segmentLengthSquared = dx * dx + dy * dy;
+        const fraction = segmentLengthSquared
+          ? Math.max(0, Math.min(1, ((cx - pointer.last.x) * dx + (cy - pointer.last.y) * dy) / segmentLengthSquared)) : 0;
+        const nearestX = pointer.last.x + fraction * dx;
+        const nearestY = pointer.last.y + fraction * dy;
+        if (radius < pointer.deadZone || Math.hypot(nearestX - cx, nearestY - cy) < pointer.deadZone) {
+          pointer.lastAngle = null;
+        } else {
+          const angle = Math.atan2(point.y - cy, point.x - cx);
+          if (pointer.lastAngle !== null) {
+            let delta = angle - pointer.lastAngle;
+            if (delta > Math.PI) delta -= Math.PI * 2;
+            if (delta < -Math.PI) delta += Math.PI * 2;
+            pointer.turn += delta;
+            if (Math.abs(delta) > .0001) pointer.moved = true;
+          }
+          pointer.lastAngle = angle;
+        }
         if (item.type === "circle" || item.type === "text") {
           item.rotation = pointer.rotation + pointer.turn;
         } else if (item.type === "arrow") {
-          const cx = (item.x1 + item.x2) / 2;
-          const cy = (item.y1 + item.y2) / 2;
-          const tail = rotatePoint({ x: pointer.endpoints.x1, y: pointer.endpoints.y1 }, cx, cy, pointer.turn);
-          const head = rotatePoint({ x: pointer.endpoints.x2, y: pointer.endpoints.y2 }, cx, cy, pointer.turn);
+          const tail = rotatePoint({ x: pointer.endpoints.x1, y: pointer.endpoints.y1 }, pointer.center.x, pointer.center.y, pointer.turn);
+          const head = rotatePoint({ x: pointer.endpoints.x2, y: pointer.endpoints.y2 }, pointer.center.x, pointer.center.y, pointer.turn);
           item.x1 = tail.x; item.y1 = tail.y;
           item.x2 = head.x; item.y2 = head.y;
         }
@@ -914,22 +957,6 @@
         resizeCircle(item, pointer, point);
       } else if (pointer.mode === "resize-arrow") {
         resizeArrow(item, pointer, point);
-      } else if (item.type === "arrow" && (pointer.mode === "head" || pointer.mode === "tail")) {
-        const cx = (item.x1 + item.x2) / 2;
-        const cy = (item.y1 + item.y2) / 2;
-        const vx = point.x - cx;
-        const vy = point.y - cy;
-        const vectorLength = Math.hypot(vx, vy) || 1;
-        const halfLength = arrowTotalLength(item) / 2;
-        const ux = vx / vectorLength;
-        const uy = vy / vectorLength;
-        if (pointer.mode === "head") {
-          item.x2 = cx + ux * halfLength; item.y2 = cy + uy * halfLength;
-          item.x1 = cx - ux * halfLength; item.y1 = cy - uy * halfLength;
-        } else {
-          item.x1 = cx + ux * halfLength; item.y1 = cy + uy * halfLength;
-          item.x2 = cx - ux * halfLength; item.y2 = cy - uy * halfLength;
-        }
       } else {
         moveItem(item, dx, dy);
       }
@@ -1007,11 +1034,18 @@
     if (item) render();
     saveState();
   });
+  strokeWidthOutput.addEventListener("change", () => {
+    const value = strokeWidthOutput.valueAsNumber;
+    strokeWidthInput.value = Number.isFinite(value)
+      ? Math.max(Number(strokeWidthInput.min), Math.min(Number(strokeWidthInput.max), Math.round(value)))
+      : state.strokeWidth;
+    strokeWidthInput.dispatchEvent(new Event("input", { bubbles: true }));
+  });
   Object.entries(arrowControls).forEach(([key, input]) => input.addEventListener("input", () => {
     const stateKey = `arrow${key[0].toUpperCase()}${key.slice(1)}`;
     const value = Number(input.value);
     state[stateKey] = value;
-    input.nextElementSibling.value = `${value}${key === "wingAngle" ? "°" : ""}`;
+    input.nextElementSibling.value = value;
     const item = state.selected === null ? null : state.annotations[state.selected];
     if (item?.type === "arrow") {
       item[key] = value;
@@ -1019,6 +1053,13 @@
       render();
     }
     saveState();
+  }));
+  Object.values(arrowControls).forEach((input) => input.nextElementSibling.addEventListener("change", (event) => {
+    const value = event.target.valueAsNumber;
+    input.value = Number.isFinite(value)
+      ? Math.max(Number(input.min), Math.min(Number(input.max), Math.round(value)))
+      : input.value;
+    input.dispatchEvent(new Event("input", { bubbles: true }));
   }));
 
   photoInput.addEventListener("change", () => { const file = photoInput.files?.[0]; if (file) loadBlob(file, file.name); photoInput.value = ""; });
