@@ -1044,13 +1044,7 @@
     if (item) render();
     saveState();
   });
-  strokeWidthOutput.addEventListener("change", () => {
-    const value = strokeWidthOutput.valueAsNumber;
-    strokeWidthInput.value = Number.isFinite(value)
-      ? Math.max(Number(strokeWidthInput.min), Math.min(Number(strokeWidthInput.max), Math.round(value)))
-      : state.strokeWidth;
-    strokeWidthInput.dispatchEvent(new Event("input", { bubbles: true }));
-  });
+  window.FernSlider.bind(strokeWidthInput, strokeWidthOutput);
   Object.entries(arrowControls).forEach(([key, input]) => input.addEventListener("input", () => {
     const stateKey = `arrow${key[0].toUpperCase()}${key.slice(1)}`;
     const value = Number(input.value);
@@ -1064,13 +1058,7 @@
     }
     saveState();
   }));
-  Object.values(arrowControls).forEach((input) => input.nextElementSibling.addEventListener("change", (event) => {
-    const value = event.target.valueAsNumber;
-    input.value = Number.isFinite(value)
-      ? Math.max(Number(input.min), Math.min(Number(input.max), Math.round(value)))
-      : input.value;
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-  }));
+  Object.values(arrowControls).forEach(input => window.FernSlider.bind(input, input.nextElementSibling));
 
   photoInput.addEventListener("change", () => { const file = photoInput.files?.[0]; if (file) loadBlob(file, file.name); photoInput.value = ""; });
   for (const eventName of ["dragenter", "dragover"]) stage.addEventListener(eventName, (event) => { event.preventDefault(); stage.classList.add("is-dragging"); });
@@ -1114,34 +1102,12 @@
   const surface = colorDialog.querySelector("[data-color-surface]");
   const thumb = colorDialog.querySelector("[data-color-thumb]");
   const hexInput = colorDialog.querySelector("[data-color-hex]");
-  let picker = { h: 3, s: 81, v: 94 };
   let activeColorKey = "arrowFill";
-
-  function hexToHsv(hex) {
-    const number = parseInt(hex.slice(1), 16);
-    const r = ((number >> 16) & 255) / 255, g = ((number >> 8) & 255) / 255, b = (number & 255) / 255;
-    const max = Math.max(r, g, b), min = Math.min(r, g, b), delta = max - min;
-    let h = 0;
-    if (delta) { if (max === r) h = 60 * (((g - b) / delta) % 6); else if (max === g) h = 60 * ((b - r) / delta + 2); else h = 60 * ((r - g) / delta + 4); }
-    return { h: (h + 360) % 360, s: max ? delta / max * 100 : 0, v: max * 100 };
-  }
-
-  function hsvToHex({ h, s, v }) {
-    s /= 100; v /= 100;
-    const c = v * s, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = v - c;
-    let rgb = [c, x, 0];
-    if (h >= 60 && h < 120) rgb = [x, c, 0]; else if (h < 180 && h >= 120) rgb = [0, c, x]; else if (h < 240 && h >= 180) rgb = [0, x, c]; else if (h < 300 && h >= 240) rgb = [x, 0, c]; else if (h >= 300) rgb = [c, 0, x];
-    return `#${rgb.map((value) => Math.round((value + m) * 255).toString(16).padStart(2, "0")).join("")}`;
-  }
-
-  function updatePicker(updateHex = true) {
-    surface.style.background = `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, hsl(${picker.h} 100% 50%))`;
-    thumb.style.left = `${picker.s}%`; thumb.style.top = `${100 - picker.v}%`; hueInput.value = picker.h;
-    if (updateHex) hexInput.value = hsvToHex(picker).toUpperCase();
-  }
+  const picker = window.FernColorSets.mountHsvPicker({ surface, thumb, hue: hueInput, hex: hexInput, change: setColor });
 
   function setColor(hex, updateSelected = true) {
     if (!/^#[0-9a-f]{6}$/i.test(hex)) return;
+    colorSetPicker.update(hex);
     state[activeColorKey] = hex.toLowerCase();
     colorButtons[activeColorKey].value = state[activeColorKey];
     const item = state.selected === null ? null : state.annotations[state.selected];
@@ -1153,23 +1119,17 @@
     saveState(); render();
   }
 
+  const colorSetPicker = window.FernColorSets.mountPicker({
+    dialog: colorDialog, detail: colorDialog.querySelector('.flourish-color-dialog-controls'), tool: 'annotate',
+    choose: color => { picker.set(color); setColor(color); },
+  });
   colorTriggers.forEach((trigger) => trigger.addEventListener("click", () => {
     activeColorKey = trigger.dataset.colorKey;
     colorDialogTitle.textContent = `Edit ${trigger.dataset.colorLabel.toLowerCase()} color`;
-    picker = hexToHsv(state[activeColorKey]);
-    updatePicker();
+    picker.set(state[activeColorKey]);
     colorDialog.showModal();
+    colorSetPicker.open();
   }));
-  hueInput.addEventListener("input", () => { picker.h = Number(hueInput.value); updatePicker(); setColor(hsvToHex(picker)); });
-  function pickSurface(event) {
-    const rect = surface.getBoundingClientRect();
-    picker.s = Math.max(0, Math.min(100, (event.clientX - rect.left) / rect.width * 100));
-    picker.v = Math.max(0, Math.min(100, 100 - (event.clientY - rect.top) / rect.height * 100));
-    updatePicker(); setColor(hsvToHex(picker));
-  }
-  surface.addEventListener("pointerdown", (event) => { surface.setPointerCapture(event.pointerId); pickSurface(event); });
-  surface.addEventListener("pointermove", (event) => { if (surface.hasPointerCapture(event.pointerId)) pickSurface(event); });
-  hexInput.addEventListener("input", () => { if (/^#[0-9a-f]{6}$/i.test(hexInput.value)) { picker = hexToHsv(hexInput.value); updatePicker(false); setColor(hexInput.value); } });
   colorDialog.querySelectorAll("[data-color-close]").forEach((button) => button.addEventListener("click", () => colorDialog.close()));
 
   document.addEventListener("keydown", (event) => {
