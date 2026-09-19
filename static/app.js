@@ -33,6 +33,7 @@
   const statusNode = document.querySelector(".status-msg");
   const metaNode = document.querySelector(".canvas-meta");
   const deleteButton = document.querySelector('[data-action="delete"]');
+  const centerCaptionButton = document.querySelector('[data-action="center-caption"]');
   const exportButton = document.querySelector('[data-action="export"]');
   const undoButtons = document.querySelectorAll('[data-action="undo"]');
   const redoButtons = document.querySelectorAll('[data-action="redo"]');
@@ -221,6 +222,7 @@
     undoButtons.forEach((button) => { button.disabled = undoStack.length === 0; });
     redoButtons.forEach((button) => { button.disabled = redoStack.length === 0; });
     deleteButton.disabled = state.selected === null || !state.annotations[state.selected];
+    centerCaptionButton.disabled = !photo || state.annotations[state.selected]?.type !== "text";
   }
 
   function syncControls() {
@@ -1018,6 +1020,14 @@
     });
   }
   textInput.addEventListener("input", () => { const item = state.selected === null ? null : state.annotations[state.selected]; if (item?.type === "text") { item.text = textInput.value; saveState(); render(); } });
+  centerCaptionButton.addEventListener("click", () => {
+    if (!photo) return;
+    if (applySelected((item) => {
+      const box = textBounds(item);
+      const center = rotatePoint({ x: box.x + box.w / 2, y: box.y + box.h / 2 }, item.x, item.y, item.rotation || 0);
+      item.x += canvas.width / 2 - center.x;
+    }, "text")) announce("Caption centred on image.");
+  });
   textSizeInput.addEventListener("input", () => {
     state.textSize = Math.max(2, Math.min(18, Number(textSizeInput.value) || 2));
     const item = state.selected === null ? null : state.annotations[state.selected];
