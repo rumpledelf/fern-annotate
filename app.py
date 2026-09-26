@@ -4,6 +4,7 @@ from pathlib import Path
 from wsgiref.simple_server import make_server
 
 BASE_DIR = Path(__file__).resolve().parent
+LANDING_DIR = BASE_DIR.parent / "fern-landing"
 
 
 def response(body, content_type, status="200 OK"):
@@ -13,8 +14,10 @@ def response(body, content_type, status="200 OK"):
 def serve_file(path):
     try:
         path = path.resolve()
-        path.relative_to(BASE_DIR)
     except (ValueError, OSError):
+        return response(b"Not found", "text/plain; charset=utf-8", "404 Not Found")
+    allowed_roots = (BASE_DIR, LANDING_DIR / "styles", LANDING_DIR / "scripts")
+    if not any(path.is_relative_to(root.resolve()) for root in allowed_roots):
         return response(b"Not found", "text/plain; charset=utf-8", "404 Not Found")
     if not path.is_file():
         return response(b"Not found", "text/plain; charset=utf-8", "404 Not Found")
@@ -33,7 +36,12 @@ def application(environ, start_response):
         path = path[len(mount):]
     if path in ("", "/"):
         result = serve_file(BASE_DIR / "index.html")
-    elif path.startswith("/styles/") or path.startswith("/static/"):
+    elif path.startswith("/styles/"):
+        local = BASE_DIR / path.lstrip("/")
+        result = serve_file(local if local.is_file() else LANDING_DIR / path.lstrip("/"))
+    elif path.startswith("/scripts/"):
+        result = serve_file(LANDING_DIR / path.lstrip("/"))
+    elif path.startswith("/static/"):
         result = serve_file(BASE_DIR / path.lstrip("/"))
     else:
         result = response(b"Not found", "text/plain; charset=utf-8", "404 Not Found")
