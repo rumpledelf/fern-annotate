@@ -32,22 +32,21 @@
     <div class="page-shell">
       <main class="controls-layout">
         <aside class="control-nav fern-panel" aria-label="Annotation controls">
-          <section class="control-nav-section">
-            <h2>Colors</h2>
+          <h3 id="colors-heading">Colors</h3>
+          <section class="control-nav-section" aria-labelledby="colors-heading">
             <div class="color-controls-grid annotation-color-grid">
               <div class="color-field" data-color-trigger data-color-key="arrowFill" data-color-label="Arrow fill"><label class="fern-label" for="arrow-fill">Arrow fill</label><input id="arrow-fill" type="color" value="#ef342d" title="Edit arrow fill color"></div>
               <div class="color-field" data-color-trigger data-color-key="arrowBorder" data-color-label="Arrow border"><label class="fern-label" for="arrow-border">Arrow border</label><input id="arrow-border" type="color" value="#ffffff" title="Edit arrow border color"></div>
               <div class="color-field" data-color-trigger data-color-key="textFill" data-color-label="Text fill"><label class="fern-label" for="text-fill">Text fill</label><input id="text-fill" type="color" value="#000000" title="Edit text fill color"></div>
               <div class="color-field" data-color-trigger data-color-key="textBorder" data-color-label="Text border"><label class="fern-label" for="text-border">Text border</label><input id="text-border" type="color" value="#ffffff" title="Edit text border color"></div>
             </div>
-            <article class="control-card">
-              <div class="slider-head"><label class="fern-label" for="stroke-width"><h2>Stroke width</h2></label><input id="stroke-width-output" type="number" min="0" max="12" step="1" value="3" aria-label="Stroke width value" class="fern-input"></div>
-              <label class="fern-label slider-wrap" for="stroke-width"><span>0</span><input id="stroke-width" type="range" min="0" max="12" step="1" value="3"><span>12</span></label>
-            </article>
+            <div class="tool-slider">
+              <label class="fern-label" for="stroke-width">Stroke width</label><input id="stroke-width" type="range" min="0" max="12" step="1" value="3"><input id="stroke-width-output" type="number" min="0" max="12" step="1" value="3" aria-label="Stroke width value" class="fern-input">
+            </div>
           </section>
 
-          <section class="control-nav-section">
-            <h2>Tools</h2>
+          <h3 id="tools-heading">Tools</h3>
+          <section class="control-nav-section" aria-labelledby="tools-heading">
             <div class="aesthetic-nav-grid tool-button-grid" aria-label="Annotation tools">
               <button class="fern-button fern-button-toggle is-selected fern-button-small" type="button" data-tool="select" aria-pressed="true">Select</button>
               <button class="fern-button fern-button-toggle fern-button-small" type="button" data-tool="text" aria-pressed="false">Text</button>
@@ -76,13 +75,17 @@
               </div>
             </div>
             <div class="tool-options is-hidden" data-controls="circle">
-              <h2>Circle style</h2>
+              <h3>Circle style</h3>
               <div class="segmented-control" role="radiogroup" aria-label="Circle style">
                 <button class="segment-btn is-active fern-button fern-button-small" type="button" data-circle-style="natural" aria-pressed="true">Hand-drawn</button>
                 <button class="segment-btn fern-button fern-button-small" type="button" data-circle-style="clean" aria-pressed="false">Oval</button>
               </div>
             </div>
           </section>
+          <h3 id="export-heading">Export</h3>
+          <div class="control-nav-section studio-actions-grid" role="group" aria-labelledby="export-heading">
+            <button class="fern-button fern-button-primary fern-button-small" type="button" data-action="export" disabled>Export PNG</button>
+          </div>
         </aside>
 
         <section class="controls-panel-container">
@@ -104,7 +107,6 @@
               <button class="fern-button fern-button-secondary fern-button-small" type="button" data-action="redo" disabled>Redo</button>
               <button class="fern-button fern-button-secondary fern-button-small" type="button" data-action="delete" disabled>Delete</button>
               <button class="fern-button fern-button-secondary fern-button-small" type="button" data-action="clear">Clear</button>
-              <button class="fern-button fern-button-primary fern-button-small" type="button" data-action="export" disabled>Export PNG</button>
             </div>
             <div class="canvas-footer"><span class="canvas-meta">No photo loaded</span><span class="status-msg" role="status" aria-live="polite"></span></div>
           </div>
