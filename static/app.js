@@ -1120,7 +1120,7 @@
   }
 
   const colorSetPicker = window.FernColorSets.mountPicker({
-    dialog: colorDialog, detail: colorDialog.querySelector('.flourish-color-dialog-controls'), tool: 'annotate',
+    dialog: colorDialog, detail: colorDialog.querySelector('.fern-color-fields'), tool: 'annotate',
     choose: color => { picker.set(color); setColor(color); },
   });
   colorTriggers.forEach((trigger) => trigger.addEventListener("click", () => {
