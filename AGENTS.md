@@ -1,5 +1,10 @@
 # annotate guidance
 
+## Naming
+
+- The public product is **Phrond Annotate**. Keep that name in user-facing copy;
+  use Fern in repository and implementation names.
+
 ## Documentation in Landing
 
 This repository holds the tool's own code. Its user-facing pages and the
