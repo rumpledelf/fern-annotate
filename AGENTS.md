@@ -1,5 +1,15 @@
 # annotate guidance
 
+## Documentation in Landing
+
+This repository holds the tool's own code. Its user-facing pages and the
+product documentation live in `fern-landing`; check and update them too:
+
+- Help guide: none yet. If one is added, it goes in
+  `../fern-landing/templates/pages/help-annotate.html`.
+- Public intro page: `../fern-landing/templates/pages/annotate.html`.
+- Product, account, access and platform docs: `../fern-landing/docs/`.
+
 ## Shared implementation policy
 
 Before changing shared UI, controls, styling, account behavior or cross-tool
