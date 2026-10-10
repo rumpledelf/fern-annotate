@@ -31,7 +31,8 @@
 
     <div class="page-shell">
       <main class="controls-layout">
-        <aside class="control-nav fern-panel" aria-label="Annotation controls">
+        <aside class="control-nav fern-panel" aria-label="Annotation controls" data-collapsible-sidebar>
+        <button class="fern-sidebar-toggle" type="button" data-sidebar-toggle aria-expanded="true"><svg class="fern-icon sidebar-toggle-indicator" aria-hidden="true" viewBox="0 0 24 24" focusable="false"><use href="/styles/assets/fern-icons.svg#chevron_left"></use></svg></button>
           <h3 id="colors-heading">Colors</h3>
           <section class="control-nav-section" aria-labelledby="colors-heading">
             <div class="color-controls-grid annotation-color-grid">
@@ -132,5 +133,7 @@
       </div>
     </dialog>
     <script src="static/app.js"></script>
-  </body>
+    <script src="/scripts/sidebar.js"></script>
+  <script>FernSidebar.bind({sidebar: document.querySelector("[data-collapsible-sidebar]"), layout: document.querySelector(".controls-layout"), storageKey: "phrond.annotate.sidebar", label: "annotation controls"});</script>
+</body>
 </html>
