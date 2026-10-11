@@ -32,3 +32,7 @@ is maintained in Landing.
 - A catalogue entry does not publish a tool. Tiles and the Tools menu default to
   invisible; only the ignored, per-computer `fern-landing/config/home.local.php`
   may list visible tools. Never commit that file or a machine's release list.
+
+## Language and copy standards
+
+- Always use US English spelling in user-facing text, titles, labels, placeholders, and tooltips (`color` instead of `colour`, `-ize` suffixes like `randomize` and `customize`).
