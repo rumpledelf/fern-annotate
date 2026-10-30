@@ -36,3 +36,10 @@ is maintained in Landing.
 ## Language and copy standards
 
 - Always use US English spelling in user-facing text, titles, labels, placeholders, and tooltips (`color` instead of `colour`, `-ize` suffixes like `randomize` and `customize`).
+
+## Where notes go
+
+Most notes (decisions, plans, pending work) go in Landing's docs
+(`fern-landing/docs/`). This repo's README is for how this tool works.
+Not in an agent's own memory: sessions start in different folders (often the
+workspace, one level up), so private memory isn't seen next time; the repos are.
