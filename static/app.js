@@ -1122,13 +1122,14 @@
   const colorSetPicker = window.FernColorSets.mountPicker({
     dialog: colorDialog, detail: colorDialog.querySelector('.fern-color-fields'), tool: 'annotate',
     choose: color => { picker.set(color); setColor(color); },
+    revert: color => { picker.set(color); setColor(color); },
   });
   colorTriggers.forEach((trigger) => trigger.addEventListener("click", () => {
     activeColorKey = trigger.dataset.colorKey;
     colorDialogTitle.textContent = `Edit ${trigger.dataset.colorLabel.toLowerCase()} color`;
     picker.set(state[activeColorKey]);
     colorDialog.showModal();
-    colorSetPicker.open();
+    colorSetPicker.open(state[activeColorKey]);
   }));
   colorDialog.querySelectorAll("[data-color-close]").forEach((button) => button.addEventListener("click", () => colorDialog.close()));
 
