@@ -43,3 +43,8 @@ Most notes (decisions, plans, pending work) go in Landing's docs
 (`fern-landing/docs/`). This repo's README is for how this tool works.
 Not in an agent's own memory: sessions start in different folders (often the
 workspace, one level up), so private memory isn't seen next time; the repos are.
+
+## Agent rules
+
+Read and follow [the shared agent rules](../fern-landing/docs/agent-rules.md) (commits and other rules every agent
+follows). They are kept in one place in Landing; do not copy them here.
